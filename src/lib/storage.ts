@@ -95,6 +95,10 @@ export const storage = {
       const totalMissed = dayRecords.filter(r => !r.isOffered).length;
       const totalOnTime = dayRecords.filter(r => r.isOffered && r.prayerType === 'on-time').length;
       const totalQaza = dayRecords.filter(r => r.isOffered && r.prayerType === 'qaza').length;
+      const totalHome = dayRecords.filter(r => r.isOffered && r.location === 'home').length;
+      const totalMasjid = dayRecords.filter(r => r.isOffered && r.location === 'masjid').length;
+      const isFriday = new Date(dateStr).getDay() === 5;
+      const totalJumma = isFriday ? (dayRecords.find(r => r.prayerId === 'dhuhr' && r.isOffered) ? 1 : 0) : 0;
       const completionPercentage = dayRecords.length > 0 
         ? Math.round((totalOffered / dayRecords.length) * 100) 
         : 0;
@@ -106,6 +110,9 @@ export const storage = {
         totalMissed,
         totalOnTime,
         totalQaza,
+        totalHome,
+        totalMasjid,
+        totalJumma,
         completionPercentage,
       });
       

@@ -6,6 +6,8 @@ export interface Prayer {
   isFarz: boolean;
 }
 
+export type PrayerLocation = 'home' | 'masjid';
+
 export interface PrayerRecord {
   id: string;
   date: string; // YYYY-MM-DD format
@@ -13,6 +15,7 @@ export interface PrayerRecord {
   isOffered: boolean;
   prayerType: 'on-time' | 'qaza' | 'missed'; // on-time, qaza (offered later), or missed
   offeredAt?: string; // ISO timestamp
+  location?: PrayerLocation; // where it was offered, if offered
   notes?: string;
 }
 
@@ -23,6 +26,9 @@ export interface DailyRecord {
   totalMissed: number;
   totalOnTime: number;
   totalQaza: number;
+  totalHome: number;
+  totalMasjid: number;
+  totalJumma?: number; // number of Jumma prayers offered (0 or 1) on Fridays
   completionPercentage: number;
 }
 
@@ -36,6 +42,9 @@ export interface ReportData {
   totalMissed: number;
   totalOnTime: number;
   totalQaza: number;
+  totalHome: number;
+  totalMasjid: number;
+  totalJumma?: number; // total count of Jumma prayers offered across the period
   completionPercentage: number;
   dailyRecords: DailyRecord[];
   prayerBreakdown: {
@@ -45,6 +54,8 @@ export interface ReportData {
       missed: number;
       onTime: number;
       qaza: number;
+      home: number;
+      masjid: number;
       percentage: number;
     };
   };

@@ -22,7 +22,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
   }, [selectedDate]);
 
   // Handle prayer toggle
-  const handlePrayerToggle = async (prayerId: string, isOffered: boolean, prayerType: 'on-time' | 'qaza' = 'on-time') => {
+  const handlePrayerToggle = async (prayerId: string, isOffered: boolean, prayerType: 'on-time' | 'qaza' = 'on-time', location?: 'home' | 'masjid') => {
     setIsLoading(true);
     
     const existingRecord = prayerRecords.find(
@@ -36,6 +36,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
       isOffered,
       prayerType: isOffered ? prayerType : 'missed',
       offeredAt: isOffered ? new Date().toISOString() : undefined,
+      location: isOffered ? (location ?? existingRecord?.location ?? 'home') : undefined,
     };
     
     // Update local state
@@ -55,6 +56,15 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
   const getPrayerRecord = (prayerId: string): PrayerRecord | undefined => {
     return prayerRecords.find(record => record.prayerId === prayerId);
   };
+
+  // Build displayed prayers; on Fridays, Dhuhr is shown as Jumma
+  const isSelectedFriday = new Date(selectedDate).getDay() === 5; // 5 = Friday
+  const displayedPrayers = FARZ_PRAYERS.map(p => {
+    if (isSelectedFriday && p.id === 'dhuhr') {
+      return { ...p, name: 'Jumma' };
+    }
+    return p;
+  });
 
   // Calculate daily stats
   const totalPrayers = FARZ_PRAYERS.length;
@@ -132,7 +142,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
           </div>
           <div className="mt-2 text-sm text-gray-600">
             {isToday 
-              ? "Today's prayers" 
+              ? "Today&#39;s prayers" 
               : isPastDate
                 ? `Editing ${new Date(selectedDate).toLocaleDateString()} (past date)`
                 : `Editing ${new Date(selectedDate).toLocaleDateString()} (future date)`
@@ -167,7 +177,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
 
       {/* Prayer List */}
       <div className="space-y-4">
-        {FARZ_PRAYERS.map((prayer) => {
+        {displayedPrayers.map((prayer) => {
           const record = getPrayerRecord(prayer.id);
           const isOffered = record?.isOffered || false;
           const prayerType = record?.prayerType || 'missed';
@@ -214,16 +224,27 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
                 
                 <div className="flex items-center gap-2">
                   {!isOffered ? (
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
+                      <select
+                        defaultValue={record?.location || 'home'}
+                        onChange={(e) => {
+                          const loc = (e.target.value as 'home' | 'masjid');
+                          handlePrayerToggle(prayer.id, true, 'on-time', loc);
+                        }}
+                        className="px-2 py-2 border border-gray-300 rounded-md text-sm"
+                      >
+                        <option value="home">Home</option>
+                        <option value="masjid">Masjid</option>
+                      </select>
                       <button
-                        onClick={() => handlePrayerToggle(prayer.id, true, 'on-time')}
+                        onClick={() => handlePrayerToggle(prayer.id, true, 'on-time', record?.location || 'home')}
                         disabled={isLoading}
                         className="px-3 py-2 rounded-md text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
                       >
                         On Time
                       </button>
                       <button
-                        onClick={() => handlePrayerToggle(prayer.id, true, 'qaza')}
+                        onClick={() => handlePrayerToggle(prayer.id, true, 'qaza', record?.location || 'home')}
                         disabled={isLoading}
                         className="px-3 py-2 rounded-md text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50"
                       >
@@ -231,13 +252,34 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
                       </button>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => handlePrayerToggle(prayer.id, false)}
-                      disabled={isLoading}
-                      className="px-4 py-2 rounded-md font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-                    >
-                      Mark as Missed
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handlePrayerToggle(prayer.id, false)}
+                        disabled={isLoading}
+                        className="px-4 py-2 rounded-md font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+                      >
+                        Mark as Missed
+                      </button>
+                      <select
+                        value={record?.location || ''}
+                        onChange={(e) => {
+                          const location = (e.target.value || 'home') as 'home' | 'masjid';
+                          handlePrayerToggle(prayer.id, true, record?.prayerType === 'qaza' ? 'qaza' : 'on-time', location);
+                          setTimeout(() => {
+                            const existing = getPrayerRecord(prayer.id);
+                            if (existing) {
+                              storage.updatePrayerRecord({ ...existing, location });
+                              setPrayerRecords(prev => prev.map(p => p.prayerId === prayer.id ? { ...p, location } : p));
+                            }
+                          }, 0);
+                        }}
+                        className="px-2 py-2 border border-gray-300 rounded-md text-sm"
+                      >
+                        <option value="">Location</option>
+                        <option value="home">Home</option>
+                        <option value="masjid">Masjid</option>
+                      </select>
+                    </div>
                   )}
                 </div>
               </div>
@@ -265,7 +307,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
           <h4 className="font-medium text-blue-800 mb-2">Editing Past Data</h4>
           <p className="text-sm text-blue-700">
-            You can edit any past date's prayer data. Use the Previous/Next Day buttons or date picker to navigate to any date. 
+            You can edit any past date&#39;s prayer data. Use the Previous/Next Day buttons or date picker to navigate to any date. 
             All changes are automatically saved and will be reflected in your reports.
           </p>
         </div>

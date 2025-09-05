@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ReportData, ReportFilters, DailyRecord, FARZ_PRAYERS } from '@/types/namaz';
+import { ReportData, ReportFilters, FARZ_PRAYERS } from '@/types/namaz';
 import { storage } from '@/lib/storage';
 
 interface ReportingModuleProps {
@@ -18,7 +18,7 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
     sortOrder: 'desc',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
+  const [selectedPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
 
   // Generate report data based on filters
   const generateReport = async () => {
@@ -34,6 +34,9 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
       const totalMissed = totalPrayers - totalOffered;
       const totalOnTime = dailyRecords.reduce((sum, day) => sum + day.totalOnTime, 0);
       const totalQaza = dailyRecords.reduce((sum, day) => sum + day.totalQaza, 0);
+      const totalHome = dailyRecords.reduce((sum, day) => sum + day.totalHome, 0);
+      const totalMasjid = dailyRecords.reduce((sum, day) => sum + day.totalMasjid, 0);
+      const totalJumma = dailyRecords.reduce((sum, day) => sum + (day.totalJumma || 0), 0);
       const completionPercentage = totalPrayers > 0 
         ? Math.round((totalOffered / totalPrayers) * 100) 
         : 0;
@@ -54,6 +57,14 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
           const prayerRecord = day.prayers.find(p => p.prayerId === prayer.id);
           return sum + (prayerRecord?.isOffered && prayerRecord.prayerType === 'qaza' ? 1 : 0);
         }, 0);
+        const home = dailyRecords.reduce((sum, day) => {
+          const prayerRecord = day.prayers.find(p => p.prayerId === prayer.id);
+          return sum + (prayerRecord?.isOffered && prayerRecord.location === 'home' ? 1 : 0);
+        }, 0);
+        const masjid = dailyRecords.reduce((sum, day) => {
+          const prayerRecord = day.prayers.find(p => p.prayerId === prayer.id);
+          return sum + (prayerRecord?.isOffered && prayerRecord.location === 'masjid' ? 1 : 0);
+        }, 0);
         const percentage = totalDays > 0 ? Math.round((offered / totalDays) * 100) : 0;
         
         prayerBreakdown[prayer.id] = {
@@ -62,6 +73,8 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
           missed,
           onTime,
           qaza,
+          home,
+          masjid,
           percentage,
         };
       });
@@ -76,6 +89,9 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
         totalMissed,
         totalOnTime,
         totalQaza,
+        totalHome,
+        totalMasjid,
+        totalJumma,
         completionPercentage,
         dailyRecords,
         prayerBreakdown,
@@ -92,6 +108,7 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
   // Generate report on component mount and when filters change
   useEffect(() => {
     generateReport();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, selectedPeriod]);
 
   // Quick date range presets
@@ -160,7 +177,7 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
             <select
               value={filters.sortBy}
-              onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as any }))}
+              onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as 'date' | 'completion' | 'prayer' }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="date">Date</option>
@@ -173,7 +190,7 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Order</label>
             <select
               value={filters.sortOrder}
-              onChange={(e) => setFilters(prev => ({ ...prev, sortOrder: e.target.value as any }))}
+              onChange={(e) => setFilters(prev => ({ ...prev, sortOrder: e.target.value as 'asc' | 'desc' }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="desc">Descending</option>
@@ -213,7 +230,7 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-9 gap-4 mb-6">
         <div className="bg-blue-50 p-4 rounded-lg text-center">
           <div className="text-2xl font-bold text-blue-600">{reportData.totalDays}</div>
           <div className="text-sm text-blue-700">Total Days</div>
@@ -229,6 +246,18 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
         <div className="bg-orange-50 p-4 rounded-lg text-center">
           <div className="text-2xl font-bold text-orange-600">{reportData.totalQaza}</div>
           <div className="text-sm text-orange-700">Qaza</div>
+        </div>
+        <div className="bg-gray-50 p-4 rounded-lg text-center">
+          <div className="text-2xl font-bold text-gray-700">{reportData.totalHome}</div>
+          <div className="text-sm text-gray-700">Home</div>
+        </div>
+        <div className="bg-gray-50 p-4 rounded-lg text-center">
+          <div className="text-2xl font-bold text-gray-700">{reportData.totalMasjid}</div>
+          <div className="text-sm text-gray-700">Masjid</div>
+        </div>
+        <div className="bg-yellow-50 p-4 rounded-lg text-center">
+          <div className="text-2xl font-bold text-yellow-700">{reportData.totalJumma || 0}</div>
+          <div className="text-sm text-yellow-700">Jumma (Fridays)</div>
         </div>
         <div className="bg-red-50 p-4 rounded-lg text-center">
           <div className="text-2xl font-bold text-red-600">{reportData.totalMissed}</div>
@@ -246,9 +275,10 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {FARZ_PRAYERS.map((prayer) => {
             const breakdown = reportData.prayerBreakdown[prayer.id];
+            const title = prayer.id === 'dhuhr' ? 'Dhuhr/Jumma' : prayer.name;
             return (
               <div key={prayer.id} className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-gray-800 mb-2">{prayer.name}</h4>
+                <h4 className="font-semibold text-gray-800 mb-2">{title}</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-green-600">Offered:</span>
@@ -263,8 +293,12 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
                     <span className="font-medium">{breakdown.qaza}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-red-600">Missed:</span>
-                    <span className="font-medium">{breakdown.missed}</span>
+                    <span className="text-gray-700">Home:</span>
+                    <span className="font-medium">{breakdown.home}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700">Masjid:</span>
+                    <span className="font-medium">{breakdown.masjid}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-purple-600">Rate:</span>
@@ -305,6 +339,15 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
                   Qaza
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Home
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Masjid
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Jumma
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Missed
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -330,6 +373,15 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
                   <td className="px-4 py-3 text-sm text-orange-600 font-medium">
                     {day.totalQaza}
                   </td>
+                  <td className="px-4 py-3 text-sm text-gray-700 font-medium">
+                    {day.totalHome}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700 font-medium">
+                    {day.totalMasjid}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-yellow-700 font-medium">
+                    {day.totalJumma || 0}
+                  </td>
                   <td className="px-4 py-3 text-sm text-red-600 font-medium">
                     {day.totalMissed}
                   </td>
@@ -348,13 +400,15 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
                     <div className="flex flex-wrap gap-1">
                       {FARZ_PRAYERS.map((prayer) => {
                         const prayerRecord = day.prayers.find(p => p.prayerId === prayer.id);
+                        const isFriday = new Date(day.date).getDay() === 5;
+                        const displayName = isFriday && prayer.id === 'dhuhr' ? 'Jumma' : prayer.name;
                         if (!prayerRecord?.isOffered) {
                           return (
                             <span
                               key={prayer.id}
                               className="px-2 py-1 text-xs rounded bg-red-100 text-red-800"
                             >
-                              {prayer.name}
+                              {displayName}
                             </span>
                           );
                         }
@@ -367,7 +421,7 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
                                 : 'bg-orange-100 text-orange-800'
                             }`}
                           >
-                            {prayer.name}
+                            {displayName}
                           </span>
                         );
                       })}
@@ -417,7 +471,7 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
 
 // Helper function to generate CSV content
 function generateCSV(reportData: ReportData): string {
-  const headers = ['Date', 'Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Total Offered', 'On Time', 'Qaza', 'Total Missed', 'Completion %'];
+  const headers = ['Date', 'Fajr', 'Dhuhr/Jumma', 'Asr', 'Maghrib', 'Isha', 'Total Offered', 'On Time', 'Qaza', 'Home', 'Masjid', 'Jumma', 'Total Missed', 'Completion %'];
   const rows = reportData.dailyRecords.map(day => {
     const prayerStatus = FARZ_PRAYERS.map(prayer => {
       const prayerRecord = day.prayers.find(p => p.prayerId === prayer.id);
@@ -431,6 +485,9 @@ function generateCSV(reportData: ReportData): string {
       day.totalOffered,
       day.totalOnTime,
       day.totalQaza,
+      day.totalHome,
+      day.totalMasjid,
+      day.totalJumma || 0,
       day.totalMissed,
       day.completionPercentage
     ].join(',');

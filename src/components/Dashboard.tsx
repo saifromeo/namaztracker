@@ -34,6 +34,8 @@ export default function Dashboard() {
       const todayMissed = FARZ_PRAYERS.length - todayOffered;
       const todayOnTime = todayRecords.filter(r => r.isOffered && r.prayerType === 'on-time').length;
       const todayQaza = todayRecords.filter(r => r.isOffered && r.prayerType === 'qaza').length;
+      const todayHome = todayRecords.filter(r => r.isOffered && r.location === 'home').length;
+      const todayMasjid = todayRecords.filter(r => r.isOffered && r.location === 'masjid').length;
       const todayCompletion = FARZ_PRAYERS.length > 0 
         ? Math.round((todayOffered / FARZ_PRAYERS.length) * 100) 
         : 0;
@@ -45,6 +47,8 @@ export default function Dashboard() {
         totalMissed: todayMissed,
         totalOnTime: todayOnTime,
         totalQaza: todayQaza,
+        totalHome: todayHome,
+        totalMasjid: todayMasjid,
         completionPercentage: todayCompletion,
       });
       
@@ -145,7 +149,7 @@ export default function Dashboard() {
 
             {/* Today's Progress */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Today's Progress</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Today&#39;s Progress</h3>
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
                   <div className="text-center">
@@ -173,7 +177,7 @@ export default function Dashboard() {
                 {/* Progress Bar */}
                 <div className="mb-4">
                   <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Today's Progress</span>
+                    <span>Today&#39;s Progress</span>
                     <span>{todayStats?.completionPercentage || 0}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
@@ -189,7 +193,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentView('tracker')}
                     className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                   >
-                    Update Today's Prayers
+                    Update Today&#39;s Prayers
                   </button>
                 </div>
               </div>
@@ -197,7 +201,7 @@ export default function Dashboard() {
 
             {/* Weekly Summary */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">This Week's Summary</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">This Week&#39;s Summary</h3>
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
                   <div className="text-center">
@@ -242,7 +246,7 @@ export default function Dashboard() {
                     onClick={() => setCurrentView('tracker')}
                     className="w-full text-left p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                   >
-                    <div className="font-medium text-blue-800">Track Today's Prayers</div>
+                    <div className="font-medium text-blue-800">Track Today&#39;s Prayers</div>
                     <div className="text-sm text-blue-600">Mark your prayers as offered</div>
                   </button>
                   <button
@@ -268,8 +272,8 @@ export default function Dashboard() {
                     }}
                     className="w-full text-left p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"
                   >
-                    <div className="font-medium text-orange-800">Edit Yesterday's Prayers</div>
-                    <div className="text-sm text-orange-600">Update or correct yesterday's data</div>
+                    <div className="font-medium text-orange-800">Edit Yesterday&#39;s Prayers</div>
+                    <div className="text-sm text-orange-600">Update or correct yesterday&#39;s data</div>
                   </button>
                 </div>
               </div>
