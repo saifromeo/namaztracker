@@ -101,10 +101,10 @@ export default function Dashboard() {
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-800">Namaz Tracker</h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4 overflow-x-auto no-scrollbar py-2">
               <button
                 onClick={() => setCurrentView('dashboard')}
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap ${
                   currentView === 'dashboard'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-500 hover:text-gray-700'
@@ -114,7 +114,7 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={() => setCurrentView('tracker')}
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap ${
                   currentView === 'tracker'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-500 hover:text-gray-700'
@@ -124,7 +124,7 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={() => setCurrentView('reports')}
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap ${
                   currentView === 'reports'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-500 hover:text-gray-700'
@@ -151,7 +151,7 @@ export default function Dashboard() {
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Today&#39;s Progress</h3>
               <div className="bg-white rounded-lg shadow p-6">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-4">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-green-600">{todayStats?.totalOffered || 0}</div>
                     <div className="text-sm text-gray-600">Prayers Offered</div>
@@ -203,7 +203,7 @@ export default function Dashboard() {
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">This Week&#39;s Summary</h3>
               <div className="bg-white rounded-lg shadow p-6">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">{weeklySummary.totalDays}</div>
                     <div className="text-sm text-gray-600">Days Tracked</div>
@@ -238,7 +238,7 @@ export default function Dashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="bg-white rounded-lg shadow p-6">
                 <h4 className="text-lg font-semibold text-gray-800 mb-3">Quick Actions</h4>
                 <div className="space-y-3">
@@ -287,7 +287,7 @@ export default function Dashboard() {
                     const prayerType = prayerRecord?.prayerType || 'missed';
                     
                     return (
-                      <div key={prayer.id} className="flex justify-between items-center">
+                      <div key={prayer.id} className="flex justify-between items-center text-sm sm:text-base">
                         <span className="text-gray-700">{prayer.name}</span>
                         <span className={`px-2 py-1 text-xs rounded ${
                           isOffered 

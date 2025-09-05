@@ -230,7 +230,7 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-9 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3 sm:gap-4 mb-6">
         <div className="bg-blue-50 p-4 rounded-lg text-center">
           <div className="text-2xl font-bold text-blue-600">{reportData.totalDays}</div>
           <div className="text-sm text-blue-700">Total Days</div>
@@ -272,7 +272,7 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
       {/* Prayer Breakdown */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-4">Prayer Breakdown</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
           {FARZ_PRAYERS.map((prayer) => {
             const breakdown = reportData.prayerBreakdown[prayer.id];
             const title = prayer.id === 'dhuhr' ? 'Dhuhr/Jumma' : prayer.name;
@@ -358,7 +358,7 @@ export default function ReportingModule({ onClose }: ReportingModuleProps) {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 text-sm">
               {reportData.dailyRecords.map((day) => (
                 <tr key={day.date} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-900">

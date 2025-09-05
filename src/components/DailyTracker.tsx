@@ -86,7 +86,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
         
         {/* Date Selector */}
         <div className="mb-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-col sm:flex-row">
             <div className="flex-1">
               <label htmlFor="date-select" className="block text-sm font-medium text-gray-700 mb-2">
                 Select Date
@@ -99,14 +99,14 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto justify-between">
               <button
                 onClick={() => {
                   const currentDate = new Date(selectedDate);
                   currentDate.setDate(currentDate.getDate() - 1);
                   setSelectedDate(currentDate.toISOString().split('T')[0]);
                 }}
-                className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors w-full sm:w-auto"
               >
                 ← Previous Day
               </button>
@@ -116,15 +116,15 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
                   currentDate.setDate(currentDate.getDate() + 1);
                   setSelectedDate(currentDate.toISOString().split('T')[0]);
                 }}
-                className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors w-full sm:w-auto"
               >
                 Next Day →
               </button>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto justify-between">
               <button
                 onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
-                className="px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                className="px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors w-full sm:w-auto"
               >
                 Today
               </button>
@@ -134,7 +134,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
                   yesterday.setDate(yesterday.getDate() - 1);
                   setSelectedDate(yesterday.toISOString().split('T')[0]);
                 }}
-                className="px-3 py-2 text-sm bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors"
+                className="px-3 py-2 text-sm bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors w-full sm:w-auto"
               >
                 Yesterday
               </button>
@@ -151,7 +151,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
         </div>
 
         {/* Daily Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-6">
           <div className="bg-green-50 p-4 rounded-lg text-center">
             <div className="text-2xl font-bold text-green-600">{offeredPrayers}</div>
             <div className="text-sm text-green-700">Prayers Offered</div>
@@ -176,7 +176,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
       </div>
 
       {/* Prayer List */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {displayedPrayers.map((prayer) => {
           const record = getPrayerRecord(prayer.id);
           const isOffered = record?.isOffered || false;
@@ -193,9 +193,9 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
                   : 'border-gray-200 bg-gray-50'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
+              <div className="flex items-start sm:items-center justify-between gap-3 sm:gap-0 flex-col sm:flex-row">
+                <div className="flex-1 w-full">
+                  <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-wrap">
                     <h3 className="text-lg font-semibold text-gray-800">
                       {prayer.name}
                     </h3>
@@ -222,16 +222,16 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
                   )}
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
                   {!isOffered ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
                       <select
                         defaultValue={record?.location || 'home'}
                         onChange={(e) => {
                           const loc = (e.target.value as 'home' | 'masjid');
                           handlePrayerToggle(prayer.id, true, 'on-time', loc);
                         }}
-                        className="px-2 py-2 border border-gray-300 rounded-md text-sm"
+                        className="px-2 py-2 border border-gray-300 rounded-md text-sm w-full sm:w-auto"
                       >
                         <option value="home">Home</option>
                         <option value="masjid">Masjid</option>
@@ -239,14 +239,14 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
                       <button
                         onClick={() => handlePrayerToggle(prayer.id, true, 'on-time', record?.location || 'home')}
                         disabled={isLoading}
-                        className="px-3 py-2 rounded-md text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
+                        className="px-3 py-2 rounded-md text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 w-full sm:w-auto"
                       >
                         On Time
                       </button>
                       <button
                         onClick={() => handlePrayerToggle(prayer.id, true, 'qaza', record?.location || 'home')}
                         disabled={isLoading}
-                        className="px-3 py-2 rounded-md text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50"
+                        className="px-3 py-2 rounded-md text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 w-full sm:w-auto"
                       >
                         Qaza
                       </button>
@@ -256,7 +256,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
                       <button
                         onClick={() => handlePrayerToggle(prayer.id, false)}
                         disabled={isLoading}
-                        className="px-4 py-2 rounded-md font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+                        className="px-4 py-2 rounded-md font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 w-full sm:w-auto"
                       >
                         Mark as Missed
                       </button>
@@ -273,7 +273,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
                             }
                           }, 0);
                         }}
-                        className="px-2 py-2 border border-gray-300 rounded-md text-sm"
+                        className="px-2 py-2 border border-gray-300 rounded-md text-sm w-full sm:w-auto"
                       >
                         <option value="">Location</option>
                         <option value="home">Home</option>
@@ -289,7 +289,7 @@ export default function DailyTracker({ date }: DailyTrackerProps) {
       </div>
 
       {/* Progress Bar */}
-      <div className="mt-6">
+      <div className="mt-6 overflow-x-auto">
         <div className="flex justify-between text-sm text-gray-600 mb-2">
           <span>Daily Progress</span>
           <span>{completionPercentage}%</span>
