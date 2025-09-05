@@ -1,0 +1,2 @@
+# namaztracker
+track namaz
